@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "outDir": "./build/",
+        "lib": ["es6"],
+        "module": "commonjs",
+        "types": ["reflect-metadata"],
+        "moduleResolution": "node",
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "allowSyntheticDefaultImports": true,
+        "noImplicitAny": true,
+        "target": "es6",
+        "sourceMap": true,
+        "plugins": [
+            {
+                "name": "tslint-language-service"
+            }
+        ]
+    },
+    "include": ["./src/**/*"],
+    "exclude": ["node_modules"]
+}
