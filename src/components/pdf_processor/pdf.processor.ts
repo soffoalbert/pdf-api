@@ -10,24 +10,27 @@ import config from '../../config/env/index';
 import { IRedisClient } from '../../config/clients/redis.client';
 import { RedisClient } from 'redis';
 import { get } from 'https';
+import { Server } from 'socket.io';
 
 export interface IPDFProcessor {
     process(pdfRecord: PDFRecord): Promise<void>;
-    listen(): void;
+    listen(server: Server): void;
 }
 
 @injectable()
 export class PDFProcessor implements IPDFProcessor {
 
     private  connection:Connection;
+    private  socketIOServer:Server;
 
     public constructor(
         @inject(TYPES.IDBClient) private DBClient: DbClient, @inject(TYPES.IRedisClient) private redisClient: IRedisClient
     ) {}
 
-    listen(): void {
+    listen(socketIOServer: Server): void {
         const redisClient: RedisClient =  this.redisClient.getClient();
 
+        this.socketIOServer = socketIOServer;
         redisClient.subscribe('processPDF', (error, channel):void => {
             if (error) {
                 throw new Error(error.message);
@@ -41,6 +44,7 @@ export class PDFProcessor implements IPDFProcessor {
             await this.process(JSON.parse(message));
 
         });
+
     }
     async process(pdf: PDFRecord): Promise<void> {
         try {
@@ -70,6 +74,10 @@ export class PDFProcessor implements IPDFProcessor {
             response.pipe(fileStream)
                 .on('close',  ():void => {
                     console.log(`File ${url} written to ${config.filePath}`);
+                    this.socketIOServer.on('connection', (socket): void => {
+                        socket.emit('processedPDF', `File ${url} has being successfully processed`);
+                        console.log(`File ${url} notification has being emitted to the client`);
+                    });
                 });
         });
     }

@@ -1,10 +1,9 @@
-import * as debug from 'debug';
 import { Address } from 'cluster';
-import { IPDFHandler } from '../../components/pdf_handler/pdf.handler';
 import { Bootstrap } from '../container/Bootstrap';
 import { Container } from 'inversify';
 import { TYPES } from '../container/types';
 import { IPDFProcessor } from '../../components/pdf_processor/pdf.processor';
+import { Server } from 'socket.io';
 
 /**
  * @param  {NodeJS.ErrnoException} error
@@ -37,11 +36,11 @@ export function onError(error: NodeJS.ErrnoException, port: number | string | bo
 /**
  * @export onListening
  */
-export function onListening(): void {
+export function onListening(socketIOServer: Server): void {
     const container:Container = Bootstrap.createContainer();
     const pdfProcessor:IPDFProcessor =  container.get<IPDFProcessor>(TYPES.IPDFProcessor);
 
-    pdfProcessor.listen();
+    pdfProcessor.listen(socketIOServer);
     const addr: Address = this.address();
     const bind: string = (typeof addr === 'string') ? `pipe ${addr}` : `port ${addr.port}`;
 

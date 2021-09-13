@@ -1,18 +1,25 @@
 import * as http from 'http';
 import * as serverHandlers from './server.handlers';
-import server from './server';
+import expressServer from './server';
+import { Server } from 'socket.io';
 
-const Server: http.Server = http.createServer(server);
+const httpServer: http.Server = http.createServer(expressServer);
+
+const socketIOServer: Server = new Server(httpServer, {
+    cors: {
+        origin: '*'
+    }
+});
 
 /**
  * Binds and listens for connections on the specified host
  */
-Server.listen(server.get('port'));
+httpServer.listen(expressServer.get('port'));
 
 /**
  * Server Events
  */
-Server.on('error',
-    (error: Error):void => serverHandlers.onError(error, server.get('port')));
-Server.on('listening',
-    serverHandlers.onListening.bind(Server));
+httpServer.on('error',
+    (error: Error): void => serverHandlers.onError(error, expressServer.get('port')));
+httpServer.on('listening',
+    serverHandlers.onListening.bind(httpServer, socketIOServer));
