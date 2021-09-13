@@ -13,6 +13,8 @@ export interface IConfig {
         synchronize: string
     };
     filePath: string;
+    redisPort: string;
+    redisHost: string;
 }
 
 const NODE_ENV: string = process.env.NODE_ENV || 'development';
@@ -27,7 +29,9 @@ const development: IConfig = {
         name: process.env.DB_NAME,
         synchronize: process.env.SYNCRONIZE_DB
     },
-    filePath: process.env.FILE_PATH
+    filePath: process.env.FILE_PATH,
+    redisPort: process.env.REDIS_PORT,
+    redisHost: process.env.REDIS_HOST
 };
 
 const config: {

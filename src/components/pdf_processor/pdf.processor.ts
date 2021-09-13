@@ -49,10 +49,11 @@ export class PDFProcessor implements IPDFProcessor {
             const pdfRecordRepository:Repository<PDFRecord> = this.connection.getRepository(PDFRecord);
             const recordToUpdate: PDFRecord = await pdfRecordRepository.findOne(pdf.id);
 
-            recordToUpdate.processed = true;
-            const pdfRecord: PDFRecord = await pdfRecordRepository.save(recordToUpdate);
+            await this.downloadFile(pdf.pdfUrl);
 
-            await this.downloadFile(pdfRecord.pdfUrl);
+            recordToUpdate.processed = true;
+            await pdfRecordRepository.save(recordToUpdate);
+
         } catch (error) {
             console.error(`Failed to update the pdf record and download the file from  ${pdf.pdfUrl} `, error);
             throw error;

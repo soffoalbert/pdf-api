@@ -47,10 +47,11 @@
     "typeorm": "^0.2.37",
     "util": "0.12.4",
     "redis": "^3.1.2",
-    "got": "^11.8.2"
+    "socket.io": "^4.2.0"
   },
   "devDependencies": {
     "@types/bcrypt": "5.0.0",
+    "@types/socket.io": "^3.0.2",
     "@types/body-parser": "1.19.1",
     "@types/compression": "1.7.1",
     "@types/cookie-parser": "1.4.2",
