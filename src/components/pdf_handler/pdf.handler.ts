@@ -5,6 +5,7 @@ import { IDBClient } from '../../config/clients/db.client';
 import { Connection, Repository } from 'typeorm';
 import { PDFRecord } from './pdf.record.model';
 import { IRedisClient } from '../../config/clients/redis.client';
+import { DuplicateException } from './duplicate.exception';
 
 export interface IPDFHandler {
     handle(pdfRecord: PDFRecord): Promise<PDFRecord>;
@@ -19,6 +20,10 @@ export class PDFHandler implements IPDFHandler {
         @inject(TYPES.IDBClient) private DBClient: IDBClient, @inject(TYPES.IRedisClient) private redisClient:IRedisClient
     ) {}
     async handle(pdf: PDFRecord): Promise<PDFRecord> {
+
+        if (this.isDuplicate(pdf.pdfUrl)) {
+            throw new DuplicateException(`File ${pdf.pdfUrl} Already exists.`);
+        }
         try {
             this.connection = await this.DBClient.getConnection();
 
@@ -50,5 +55,16 @@ export class PDFHandler implements IPDFHandler {
         const pdfRecordRepository:Repository<PDFRecord> = this.connection.getRepository(PDFRecord);
 
         return await pdfRecordRepository.find();
+    }
+
+    private async  isDuplicate(pdfUrl: string): Promise<boolean> {
+        const pdfRecordRepository:Repository<PDFRecord> = this.connection.getRepository(PDFRecord);
+
+        const pdfRecord:PDFRecord = await pdfRecordRepository
+            .createQueryBuilder('PDFRecord')
+            .where({ pdfUrl })
+            .getOne();
+
+        return !!pdfRecord;
     }
 }

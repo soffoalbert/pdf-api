@@ -1,0 +1,17 @@
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.2.0/socket.io.js"></script>
+<script>
+    var socket = io("http://localhost:3000");
+    socket.connect();
+    socket.emit('processPDF', (message) => {
+        alert(message)
+    });
+    socket.on('processedPDF', (message) => {
+        alert(message)
+    })
+</script>
+
+<html>
+
+<h1>My app</h1>
+</html>

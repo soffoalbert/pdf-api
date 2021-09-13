@@ -23,7 +23,7 @@ export async function store(req: Request, res: Response, next: NextFunction): Pr
 
         res.status(201).json(pdfRecord);
     } catch (error) {
-        next(JSON.stringify({ status: error.message.status, message: error.message }));
+        next(error.message);
     }
 }
 
@@ -43,6 +43,6 @@ export async function findAll(req: Request, res: Response, next: NextFunction): 
 
         res.status(200).json(pdfRecords);
     } catch (error) {
-        next({ status: error.message.status, message: error.message });
+        next(error.message);
     }
 }

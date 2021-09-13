@@ -37,14 +37,12 @@ export class PDFProcessor implements IPDFProcessor {
             }
             console.log(`Subscribed to ${channel} channel. Listening for updates on the ${channel} channel...`);
         });
-
         redisClient.on('message', async (channel:string, message:string): Promise<void> => {
             console.log(`Message for url ${JSON.parse(message).pdfUrl} received from to the message broker`);
 
             await this.process(JSON.parse(message));
 
         });
-
     }
     async process(pdf: PDFRecord): Promise<void> {
         try {
@@ -57,6 +55,13 @@ export class PDFProcessor implements IPDFProcessor {
 
             recordToUpdate.processed = true;
             await pdfRecordRepository.save(recordToUpdate);
+
+            this.socketIOServer.on('connection', (socket): void => {
+                socket.on('processPDF', (message): void => {
+                    socket.emit('processedPDF', `File ${recordToUpdate.pdfUrl} has being successfully processed`);
+                    console.log(`File ${recordToUpdate.pdfUrl} notification has being emitted to the client`);
+                });
+            });
 
         } catch (error) {
             console.error(`Failed to update the pdf record and download the file from  ${pdf.pdfUrl} `, error);
@@ -74,10 +79,6 @@ export class PDFProcessor implements IPDFProcessor {
             response.pipe(fileStream)
                 .on('close',  ():void => {
                     console.log(`File ${url} written to ${config.filePath}`);
-                    this.socketIOServer.on('connection', (socket): void => {
-                        socket.emit('processedPDF', `File ${url} has being successfully processed`);
-                        console.log(`File ${url} notification has being emitted to the client`);
-                    });
                 });
         });
     }
