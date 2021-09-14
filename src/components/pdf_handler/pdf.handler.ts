@@ -9,25 +9,29 @@ import { DuplicateException } from './duplicate.exception';
 
 export interface IPDFHandler {
     handle(pdfRecord: PDFRecord): Promise<PDFRecord>;
+
     list(): Promise<PDFRecord[]>;
 }
 
 @injectable()
 export class PDFHandler implements IPDFHandler {
-    private  connection:Connection;
+    private connection: Connection;
     private pdfRecord: PDFRecord;
+
     public constructor(
-        @inject(TYPES.IDBClient) private DBClient: IDBClient, @inject(TYPES.IRedisClient) private redisClient:IRedisClient
-    ) {}
+        @inject(TYPES.IDBClient) private DBClient: IDBClient, @inject(TYPES.IRedisClient) private redisClient: IRedisClient
+    ) {
+    }
+
     async handle(pdf: PDFRecord): Promise<PDFRecord> {
 
-        if (this.isDuplicate(pdf.pdfUrl)) {
+        this.connection = await this.DBClient.getConnection();
+
+        if (await this.isDuplicate(pdf.pdfUrl)) {
             throw new DuplicateException(`File ${pdf.pdfUrl} Already exists.`);
         }
         try {
-            this.connection = await this.DBClient.getConnection();
-
-            const pdfRecordRepository:Repository<PDFRecord> = this.connection.getRepository(PDFRecord);
+            const pdfRecordRepository: Repository<PDFRecord> = this.connection.getRepository(PDFRecord);
 
             pdf.processed = false;
             this.pdfRecord = await pdfRecordRepository.save(pdf);
@@ -43,7 +47,7 @@ export class PDFHandler implements IPDFHandler {
         return this.pdfRecord;
     }
 
-    publishMessage(pdfRecord: PDFRecord): void {
+    private publishMessage(pdfRecord: PDFRecord): void {
         this.redisClient.getClient().publish('processPDF', JSON.stringify(pdfRecord), (): void => {
             console.log(`Message for url ${pdfRecord.pdfUrl} sent to the message broker`);
         });
@@ -52,18 +56,18 @@ export class PDFHandler implements IPDFHandler {
     async list(): Promise<PDFRecord[]> {
         this.connection = await this.DBClient.getConnection();
 
-        const pdfRecordRepository:Repository<PDFRecord> = this.connection.getRepository(PDFRecord);
+        const pdfRecordRepository: Repository<PDFRecord> = this.connection.getRepository(PDFRecord);
 
         return await pdfRecordRepository.find();
     }
 
-    private async  isDuplicate(pdfUrl: string): Promise<boolean> {
-        const pdfRecordRepository:Repository<PDFRecord> = this.connection.getRepository(PDFRecord);
+    private async isDuplicate(pdfUrl: string): Promise<boolean> {
+        const pdfRecordRepository: Repository<PDFRecord> = this.connection.getRepository(PDFRecord);
 
-        const pdfRecord:PDFRecord = await pdfRecordRepository
-            .createQueryBuilder('PDFRecord')
-            .where({ pdfUrl })
-            .getOne();
+        const pdfRecord: PDFRecord = await pdfRecordRepository
+                .createQueryBuilder('PDFRecord')
+                .where({ pdfUrl })
+                .getOne();
 
         return !!pdfRecord;
     }

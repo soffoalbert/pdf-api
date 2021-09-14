@@ -3,7 +3,7 @@
         "outDir": "./build/",
         "lib": ["es6"],
         "module": "commonjs",
-        "types": ["reflect-metadata"],
+        "types": ["reflect-metadata", "node","jest"],
         "moduleResolution": "node",
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
@@ -17,6 +17,6 @@
             }
         ]
     },
-    "include": ["./src/**/*"],
+    "include": ["./src/**/*",  "**/*test.ts"],
     "exclude": ["node_modules"]
 }

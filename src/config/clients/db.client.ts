@@ -6,12 +6,13 @@ import config from '../env/index';
 import { PDFRecord } from '../../components/pdf_handler/pdf.record.model';
 
 export interface IDBClient {
-    getConnection(): Promise<Connection>;
+    // @ts-ignore
+    getConnection();
 }
 
 @injectable()
 export class DbClient implements IDBClient {
-    async getConnection(): Promise<Connection> {
+    async getConnection() {
         return await createConnection({
             type: 'postgres',
             host: config.database.host,
