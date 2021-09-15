@@ -23,7 +23,7 @@ export class DbClient implements IDBClient {
             synchronize: Boolean(config.database.synchronize),
             entities: [PDFRecord],
             extra: {
-                connectionLimit: 2
+                connectionLimit: 5
             }
         });
     }

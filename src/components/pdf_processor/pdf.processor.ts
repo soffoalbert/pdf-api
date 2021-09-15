@@ -27,7 +27,7 @@ export class PDFProcessor implements IPDFProcessor {
         @inject(TYPES.IDBClient) private DBClient: DbClient, @inject(TYPES.IRedisClient) private redisClient: IRedisClient
     ) {}
 
-    listen(socketIOServer: Server): void {
+    listen(socketIOServer: any): void {
         const redisClient: RedisClient =  this.redisClient.getClient();
 
         this.socketIOServer = socketIOServer;

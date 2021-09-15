@@ -1,10 +1,7 @@
 import { PDFHandler } from '../../src/components/pdf_handler/pdf.handler';
 import { DuplicateException } from '../../src/components/pdf_handler/duplicate.exception';
-
-describe('PDF component Unit Tests', () => {
+describe('PDF handler Unit Tests', () => {
     test('should store the PDF link and publish it to redis', async () => {
-        let redisClient;
-
         const dbClient = {
             getConnection: jest.fn().mockImplementation(() => {
                 return {
@@ -27,7 +24,7 @@ describe('PDF component Unit Tests', () => {
             })
         };
 
-        redisClient = {
+        const redisClient = {
             getClient: jest.fn().mockImplementation(() => {
                 return {
                     publish: jest.fn().mockResolvedValue({ pdfUrl: 'test-url', processed: false })
@@ -37,9 +34,8 @@ describe('PDF component Unit Tests', () => {
         const pdfHandler = new PDFHandler(dbClient, redisClient);
 
         expect(await pdfHandler.handle({ pdfUrl: 'test-url', processed: false })).toEqual({ pdfUrl: 'test-url', processed: false });
-        const connection = dbClient.getConnection;
 
-        expect(connection).toHaveBeenCalledTimes(1);
+        expect(dbClient.getConnection).toHaveBeenCalledTimes(2);
         expect(redisClient.getClient).toHaveBeenCalledTimes(1);
     });
 
