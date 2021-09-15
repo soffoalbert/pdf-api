@@ -27,12 +27,12 @@ These tests are there to test the different set of APIs in isolation, so that th
 
 These tests are there to test the different set of APIs but this time not in isolation but rather with an actual running instance of the application.
 
-## Error Codes
+## HTTP Codes and their meaning
 
-500 - Something unexpected occurred(Ideally this should not occur or at least not be shown to the user) 
-400 - When the URLs has already being processed.
-201 - When the PDF or file processing request has being stored and submitted to the message broker.
-200 - When the request to fetch all PDF s data from the database.
+- 500: Something unexpected occurred(Ideally this should not occur or at least not be shown to the user) 
+- 400: When the URLs has already being processed.
+- 201: - When the PDF or file processing request has being stored and submitted to the message broker.
+- 200:  - When the request to fetch all PDF s data from the database.
 
 ## Technologies used
 - **NodeJS**: to execute javascript on the backend
